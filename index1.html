@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Variable Updates</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <h1>Variable 1: <span id="var1">Loading...</span></h1>
+    <h1>Variable 2: <span id="var2">Loading...</span></h1>
+    <div id="graph"></div>
+    <h1>Average Data Plot</h1>
+    <div id="plot" style="width: 800px; height: 400px;">
+        <img id="graph" src="/api/plot" alt="Graph" />
+
+    </div>
+
+    <script>
+        function updateVariables() {
+            fetch("/api/variables")
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("var1").textContent = data.var1;
+                    document.getElementById("var2").textContent = data.var2;
+                    
+                    // Update the graph
+                    var trace1 = {
+                        x: data.timestamps,
+                        y: data.var1_values,
+                        mode: 'lines+markers',
+                        name: 'Variable 1'
+                    };
+                    var trace2 = {
+                        x: data.timestamps,
+                        y: data.var2_values,
+                        mode: 'lines+markers',
+                        name: 'Variable 2'
+                    };
+                    var layout = {
+                        xaxis: {
+                            title: 'Time'
+                        },
+                        yaxis: {
+                            title: 'Values'
+                        },
+                        title: 'Changing Variables Over Time'
+                    };
+                    var data = [trace1, trace2];
+                    Plotly.newPlot('graph', data, layout);
+                });
+        }
+
+        updateVariables(); // Initial update
+        setInterval(updateVariables, 5000); // Update every 5 seconds
+    </script>
+</body>
+</html>
